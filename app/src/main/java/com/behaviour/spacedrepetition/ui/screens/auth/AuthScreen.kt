@@ -61,7 +61,7 @@ fun AuthScreen(
                 )
             )
     ) {
-        if (uiState.isCheckingAuth) {
+        if (uiState.isCheckingAuth || uiState.isLoggedIn) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
