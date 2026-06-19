@@ -3,6 +3,7 @@ package com.behaviour.spacedrepetition.ui.screens.notes
 import android.content.Context
 import android.graphics.BitmapFactory
 import android.media.ExifInterface
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -51,7 +52,12 @@ fun CustomCameraView(
     onSaveImages: (List<File>) -> Unit
 ) {
     val context = LocalContext.current
-    val imageCapture = remember { ImageCapture.Builder().build() }
+    val haptic = LocalHapticFeedback.current
+    val imageCapture = remember {
+        ImageCapture.Builder()
+            .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+            .build()
+    }
     var lensFacing by remember { mutableIntStateOf(CameraSelector.LENS_FACING_BACK) }
     val capturedImages = remember { mutableStateListOf<File>() }
 
@@ -150,6 +156,7 @@ fun CustomCameraView(
                         .clip(CircleShape)
                         .background(Color.White)
                         .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             takePhoto(context, imageCapture) { file ->
                                 capturedImages.add(file)
                             }
@@ -188,13 +195,19 @@ fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val previewView = remember { PreviewView(context) }
+    val previewView = remember {
+        PreviewView(context).apply {
+            scaleType = PreviewView.ScaleType.FIT_CENTER
+        }
+    }
 
     LaunchedEffect(lensFacing) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         cameraProviderFuture.addListener({
             val cameraProvider = cameraProviderFuture.get()
-            val preview = Preview.Builder().build()
+            val preview = Preview.Builder()
+                .setTargetAspectRatio(AspectRatio.RATIO_16_9)
+                .build()
             preview.setSurfaceProvider(previewView.surfaceProvider)
 
             val cameraSelector = CameraSelector.Builder()
