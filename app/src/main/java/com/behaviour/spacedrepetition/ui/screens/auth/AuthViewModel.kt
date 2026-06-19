@@ -18,7 +18,8 @@ data class AuthUiState(
     val email: String = "",
     val password: String = "",
     val name: String = "",
-    val isLoginMode: Boolean = true
+    val isLoginMode: Boolean = true,
+    val isCheckingAuth: Boolean = true
 )
 
 @HiltViewModel
@@ -35,10 +36,10 @@ class AuthViewModel @Inject constructor(
 
     private fun checkAuthState() {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isCheckingAuth = true)
             val loggedIn = authRepository.isLoggedIn()
             _uiState.value = _uiState.value.copy(
-                isLoading = false,
+                isCheckingAuth = false,
                 isLoggedIn = loggedIn
             )
         }
