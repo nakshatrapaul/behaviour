@@ -230,6 +230,7 @@
             <div class="status-spinner"></div>
             <div class="redirect-btn-group">
                 <a onclick="triggerSuccessRedirect()" class="btn-redirect-manual">Skip payment / Test success callback directly</a>
+                <a onclick="resetSettings()" class="btn-redirect-manual" style="color: var(--secondary); margin-top: 10px; display: inline-block;">Reset token & settings</a>
             </div>
         </div>
 
@@ -297,6 +298,13 @@
         // Trigger manual redirect back to app
         function triggerSuccessRedirect() {
             window.location.href = "behave://checkout-success";
+        }
+
+        // Reset local storage token and settings
+        function resetSettings() {
+            localStorage.removeItem('paddle_sandbox_token');
+            localStorage.removeItem('paddle_sandbox_price_id');
+            window.location.href = window.location.pathname; // Reload without query params
         }
 
         // Initialize Paddle Checkout if credentials are present
