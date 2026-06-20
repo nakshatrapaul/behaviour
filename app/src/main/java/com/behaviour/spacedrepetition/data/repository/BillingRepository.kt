@@ -28,14 +28,13 @@ class BillingRepository @Inject constructor(
 
     companion object {
         // Switch to true for production payments, false for sandbox testing
-        private const val IS_PRODUCTION = false
+        private const val IS_PRODUCTION = true
         
-        // Your Paddle Product or Price ID (e.g., "pri_01kvj510ywtqp17d8nc0jnj3hx")
-        private const val PRODUCT_ID = "pri_01kvj510ywtqp17d8nc0jnj3hx"
+        // Your real Paddle Production Price ID (starts with "pri_")
+        private const val PRODUCT_ID = "YOUR_PRODUCTION_PRICE_ID"
 
-        // Your Paddle Sandbox Client Side Token (starts with "test_")
-        // Leave empty if you want to input it on the checkout webpage directly
-        private const val CLIENT_TOKEN = ""
+        // Your real Paddle Production Client Side Token (starts with "live_")
+        private const val CLIENT_TOKEN = "YOUR_PRODUCTION_CLIENT_TOKEN"
 
         // Custom checkout page hosted on GitHub Pages or locally
         private const val CHECKOUT_BASE_URL = "https://nakshatrapaul.github.io/behaviour/checkout.html"
