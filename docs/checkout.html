@@ -225,8 +225,8 @@
         <!-- Loading State View -->
         <div id="loading-state" class="checkout-card hidden">
             <span class="icon-premium">🔒</span>
-            <h2 class="checkout-title">Securing Connection</h2>
-            <p class="checkout-subtitle" id="loading-text">Initializing Paddle Sandbox Checkout environment...</p>
+            <h2 class="checkout-title" id="loading-title">Securing Connection</h2>
+            <p class="checkout-subtitle" id="loading-text">Initializing checkout environment...</p>
             <div class="status-spinner"></div>
             <div class="redirect-btn-group">
                 <a onclick="triggerSuccessRedirect()" class="btn-redirect-manual">Skip payment / Test success callback directly</a>
@@ -315,9 +315,25 @@
             setupState.classList.add('hidden');
             loadingState.classList.remove('hidden');
             
+            const isSandbox = activeClientToken.startsWith('test_');
+            const loadingTitle = document.getElementById('loading-title');
+            
+            if (!isSandbox) {
+                // Production environment - hide all sandbox helper buttons
+                const helperGroups = document.querySelectorAll('.redirect-btn-group');
+                helperGroups.forEach(el => el.classList.add('hidden'));
+                loadingTitle.innerText = "Premium Upgrade";
+                loadingText.innerText = "Initializing secure checkout environment...";
+            } else {
+                loadingTitle.innerText = "Sandbox Test Mode";
+                loadingText.innerText = "Initializing Paddle Sandbox Checkout environment...";
+            }
+            
             try {
                 // Initialize Paddle
-                Paddle.Environment.set("sandbox");
+                if (isSandbox) {
+                    Paddle.Environment.set("sandbox");
+                }
                 Paddle.Initialize({
                     token: activeClientToken,
                     eventCallback: function(event) {
@@ -331,7 +347,7 @@
                     }
                 });
 
-                loadingText.innerText = "Opening secure Sandbox checkout overlay...";
+                loadingText.innerText = "Opening secure checkout...";
 
                 // Open Checkout
                 Paddle.Checkout.open({
