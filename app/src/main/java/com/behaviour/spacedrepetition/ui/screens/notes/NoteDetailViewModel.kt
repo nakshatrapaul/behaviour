@@ -16,13 +16,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.behaviour.spacedrepetition.data.repository.BillingRepository
+import kotlinx.coroutines.flow.first
+
 data class NoteDetailUiState(
     val title: String = "",
     val content: String = "",
     val isEditMode: Boolean = false,
     val isLoading: Boolean = false,
     val saveSuccess: Boolean = false,
-    val noteExists: Boolean = false
+    val noteExists: Boolean = false,
+    val showPremiumDialog: Boolean = false
 )
 
 @HiltViewModel
@@ -31,6 +35,7 @@ class NoteDetailViewModel @Inject constructor(
     private val noteRepository: NoteRepository,
     private val alarmScheduler: AlarmScheduler,
     private val analyticsRepository: AnalyticsRepository,
+    private val billingRepository: BillingRepository,
     application: Application
 ) : AndroidViewModel(application) {
 
@@ -84,6 +89,10 @@ class NoteDetailViewModel @Inject constructor(
         }
     }
 
+    fun dismissPremiumDialog() {
+        _uiState.value = _uiState.value.copy(showPremiumDialog = false)
+    }
+
     fun saveNote(onComplete: (() -> Unit)? = null) {
         val state = _uiState.value
         if (state.title.isBlank()) return
@@ -106,6 +115,18 @@ class NoteDetailViewModel @Inject constructor(
                     saveSuccess = true
                 )
             } else {
+                // Check free note limit (max 5 notes)
+                if (!billingRepository.isPremium()) {
+                    val count = noteRepository.getAllNotes().first().size
+                    if (count >= 5) {
+                        _uiState.value = _uiState.value.copy(
+                            showPremiumDialog = true,
+                            isLoading = false
+                        )
+                        return@launch
+                    }
+                }
+
                 // Create new note with revisions
                 val newId = noteRepository.createNoteWithRevisions(
                     title = state.title,

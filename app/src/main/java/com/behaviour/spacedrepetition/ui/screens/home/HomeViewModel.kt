@@ -13,12 +13,15 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+import com.behaviour.spacedrepetition.data.repository.BillingRepository
+
 data class HomeUiState(
     val pendingRevisionCount: Int = 0,
     val recentNotes: List<Note> = emptyList(),
     val todayRevisions: List<Revision> = emptyList(),
     val totalNotes: Int = 0,
-    val greeting: String = ""
+    val greeting: String = "",
+    val isPremium: Boolean = false
 )
 
 @HiltViewModel
@@ -26,7 +29,8 @@ class HomeViewModel @Inject constructor(
     application: Application,
     private val noteRepository: NoteRepository,
     private val alarmScheduler: AlarmScheduler,
-    private val analyticsRepository: AnalyticsRepository
+    private val analyticsRepository: AnalyticsRepository,
+    private val billingRepository: BillingRepository
 ) : AndroidViewModel(application) {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -38,6 +42,13 @@ class HomeViewModel @Inject constructor(
 
     private fun loadData() {
         val now = System.currentTimeMillis()
+
+        // Observe premium status
+        viewModelScope.launch {
+            billingRepository.isPremium.collect { isPremium ->
+                _uiState.value = _uiState.value.copy(isPremium = isPremium)
+            }
+        }
 
         // Observe pending revision count
         viewModelScope.launch {
@@ -84,5 +95,9 @@ class HomeViewModel @Inject constructor(
             // Log note creation in analytics database
             analyticsRepository.logNoteCreated(noteId, title, "event")
         }
+    }
+
+    fun setPremium(isPremium: Boolean) {
+        billingRepository.setPremiumStatus(isPremium)
     }
 }

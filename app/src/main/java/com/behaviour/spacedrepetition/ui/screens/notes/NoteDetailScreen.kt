@@ -440,6 +440,41 @@ fun NoteDetailScreen(
             shape = RoundedCornerShape(16.dp)
         )
     }
+
+    if (uiState.showPremiumDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.dismissPremiumDialog() },
+            title = {
+                Text(
+                    text = "Upgrade Required 👑",
+                    fontWeight = FontWeight.Bold
+                )
+            },
+            text = {
+                Text(
+                    text = "You have reached the free tier limit of 5 study cards. Upgrade to Behave Premium to create unlimited notes, events, and unlock attachments!"
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.dismissPremiumDialog()
+                        val checkoutUrl = com.behaviour.spacedrepetition.data.repository.BillingRepository.PADDLE_CHECKOUT_URL
+                        val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(checkoutUrl))
+                        context.startActivity(intent)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = PrimaryDark)
+                ) {
+                    Text("Go Premium", color = TextWhite)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.dismissPremiumDialog() }) {
+                    Text("Maybe Later")
+                }
+            }
+        )
+    }
     }
 }
 

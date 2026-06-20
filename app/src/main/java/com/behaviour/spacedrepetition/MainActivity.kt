@@ -24,18 +24,45 @@ import com.behaviour.spacedrepetition.ui.theme.BehaviourTheme
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
+import com.behaviour.spacedrepetition.data.repository.BillingRepository
+import android.content.Intent
+import android.widget.Toast
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var noteRepository: NoteRepository
 
+    @Inject
+    lateinit var billingRepository: BillingRepository
+
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { _ -> }
 
+    private fun handlePaymentRedirect(intent: Intent?) {
+        intent?.data?.let { uri ->
+            if (uri.scheme == "behave" && uri.host == "checkout-success") {
+                billingRepository.setPremiumStatus(true)
+                Toast.makeText(
+                    this,
+                    "Subscription Activated! Welcome to Behave Premium! 👑",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        handlePaymentRedirect(intent)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        handlePaymentRedirect(intent)
 
         lifecycleScope.launch {
             noteRepository.alignNotesTo400Revisions()

@@ -41,6 +41,8 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showAddEventDialog by remember { mutableStateOf(false) }
 
+    val context = androidx.compose.ui.platform.LocalContext.current
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
             modifier = Modifier
@@ -51,11 +53,31 @@ fun HomeScreen(
         ) {
             // Greeting
             item {
-                Text(
-                    text = uiState.greeting,
-                    style = MaterialTheme.typography.headlineLarge,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = uiState.greeting,
+                        style = MaterialTheme.typography.headlineLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    if (uiState.isPremium) {
+                        Surface(
+                            color = WarningAmber.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(8.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, WarningAmber)
+                        ) {
+                            Text(
+                                text = "👑 Premium",
+                                color = WarningAmber,
+                                style = MaterialTheme.typography.labelSmall,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Keep your learning on track",
@@ -70,6 +92,19 @@ fun HomeScreen(
                     pendingCount = uiState.pendingRevisionCount,
                     onClick = onNavigateToRevision
                 )
+            }
+
+            // Premium Banner Card
+            if (!uiState.isPremium) {
+                item {
+                    UpgradePremiumCard(
+                        onClick = {
+                            val checkoutUrl = com.behaviour.spacedrepetition.data.repository.BillingRepository.PADDLE_CHECKOUT_URL
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(checkoutUrl))
+                            context.startActivity(intent)
+                        }
+                    )
+                }
             }
 
             // Quick Actions
@@ -170,6 +205,60 @@ fun HomeScreen(
         )
     }
 }
+}
+
+@Composable
+private fun UpgradePremiumCard(onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(
+                    brush = Brush.linearGradient(
+                        colors = listOf(
+                            PrimaryDark.copy(alpha = 0.85f),
+                            SecondaryDark.copy(alpha = 0.85f)
+                        )
+                    )
+                )
+                .clickable { onClick() }
+                .padding(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "Unlock Behave Premium 👑",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = TextWhite,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Create unlimited study notes, custom camera integrations, and more!",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextWhite.copy(alpha = 0.8f)
+                )
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.buttonColors(containerColor = TextWhite),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text(
+                    text = "Go Premium",
+                    color = PrimaryDark,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+        }
+    }
 }
 
 @Composable

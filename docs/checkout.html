@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behave Premium Checkout</title>
+    <!-- Custom Fonts -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Paddle.js v2 SDK -->
+    <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .checkout-container {
+            max-width: 550px;
+            width: 100%;
+            margin: 60px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .checkout-card {
+            background: rgba(26, 26, 46, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-card:hover {
+            border-color: rgba(108, 99, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(108, 99, 255, 0.1);
+        }
+
+        .icon-premium {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .checkout-title {
+            font-family: var(--font-outfit);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .checkout-subtitle {
+            color: var(--text-gray);
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-white);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(13, 13, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-white);
+            font-family: var(--font-inter);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .btn-launch {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: var(--text-white);
+            font-family: var(--font-outfit);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+            margin-top: 10px;
+        }
+
+        .btn-launch:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.6);
+            background: linear-gradient(135deg, #7c74ff, var(--primary));
+        }
+
+        .btn-launch:active {
+            transform: translateY(0);
+        }
+
+        .status-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .instruction-box {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .instruction-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--accent);
+        }
+
+        .instruction-list {
+            padding-left: 20px;
+            font-size: 13px;
+            color: var(--text-gray);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        .instruction-list li {
+            margin-bottom: 6px;
+        }
+
+        .instruction-list code {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--secondary);
+            font-family: monospace;
+        }
+
+        .redirect-btn-group {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-redirect-manual {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: opacity 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-redirect-manual:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <a href="index.html" class="logo"><span>Behave</span></a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+    </header>
+
+    <!-- Main Checkout Box -->
+    <main class="checkout-container">
+        
+        <!-- Loading State View -->
+        <div id="loading-state" class="checkout-card hidden">
+            <span class="icon-premium">🔒</span>
+            <h2 class="checkout-title">Securing Connection</h2>
+            <p class="checkout-subtitle" id="loading-text">Initializing Paddle Sandbox Checkout environment...</p>
+            <div class="status-spinner"></div>
+            <div class="redirect-btn-group">
+                <a onclick="triggerSuccessRedirect()" class="btn-redirect-manual">Skip payment / Test success callback directly</a>
+            </div>
+        </div>
+
+        <!-- Setup Token / Price ID Form View -->
+        <div id="setup-state" class="checkout-card">
+            <span class="icon-premium">👑</span>
+            <h2 class="checkout-title">Behave Premium</h2>
+            <p class="checkout-subtitle">Launch your custom sandbox checkout flow to test the billing integration locally on your phone.</p>
+
+            <div class="instruction-box">
+                <div class="instruction-title">How to get your Client Side Token:</div>
+                <ol class="instruction-list">
+                    <li>Log in to <a href="https://sandbox-vendors.paddle.com" target="_blank" style="color: var(--primary); text-decoration: none;">sandbox-vendors.paddle.com</a></li>
+                    <li>Go to <strong>Developer Tools > Authentication</strong></li>
+                    <li>Generate / copy your <strong>Client Side Token</strong> (starts with <code>test_</code>)</li>
+                    <li>Add <code>https://nakshatrapaul.github.io</code> or <code>http://localhost:8000</code> to your dashboard default checkout domain under <strong>Checkout > Checkout Settings</strong></li>
+                </ol>
+            </div>
+
+            <form id="setup-form" onsubmit="handleFormSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label" for="client_token">Sandbox Client Side Token</label>
+                    <input type="text" id="client_token" class="form-input" placeholder="test_..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="price_id">Price ID</label>
+                    <input type="text" id="price_id" class="form-input" placeholder="pri_..." required>
+                </div>
+                <button type="submit" class="btn-launch">Start Sandbox Checkout</button>
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 40px;">
+        <div>
+            <p>&copy; 2026 Behave App. Designed by naks.</p>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Get elements
+        const loadingState = document.getElementById('loading-state');
+        const loadingText = document.getElementById('loading-text');
+        const setupState = document.getElementById('setup-state');
+        const setupForm = document.getElementById('setup-form');
+        const clientTokenInput = document.getElementById('client_token');
+        const priceIdInput = document.getElementById('price_id');
+
+        // Extract parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        let urlPriceId = urlParams.get('price_id');
+        let urlClientToken = urlParams.get('client_token');
+
+        // Check LocalStorage
+        const cachedClientToken = localStorage.getItem('paddle_sandbox_token');
+        const cachedPriceId = localStorage.getItem('paddle_sandbox_price_id');
+
+        // Populate initial form values
+        priceIdInput.value = urlPriceId || cachedPriceId || "pri_01kvj510ywtqp17d8nc0jnj3hx";
+        clientTokenInput.value = urlClientToken || cachedClientToken || "";
+
+        // Trigger manual redirect back to app
+        function triggerSuccessRedirect() {
+            window.location.href = "behave://checkout-success";
+        }
+
+        // Initialize Paddle Checkout if credentials are present
+        const activeClientToken = urlClientToken || cachedClientToken;
+        const activePriceId = urlPriceId || cachedPriceId || "pri_01kvj510ywtqp17d8nc0jnj3hx";
+
+        if (activeClientToken && activePriceId) {
+            setupState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+            
+            try {
+                // Initialize Paddle
+                Paddle.Environment.set("sandbox");
+                Paddle.Initialize({
+                    token: activeClientToken,
+                    eventCallback: function(event) {
+                        console.log("Paddle Event:", event);
+                        if (event.name === 'checkout.completed') {
+                            loadingText.innerText = "Payment completed! Redirecting back to Behave app...";
+                            setTimeout(() => {
+                                triggerSuccessRedirect();
+                            }, 1500);
+                        }
+                    }
+                });
+
+                loadingText.innerText = "Opening secure Sandbox checkout overlay...";
+
+                // Open Checkout
+                Paddle.Checkout.open({
+                    items: [
+                        {
+                            priceId: activePriceId,
+                            quantity: 1
+                        }
+                    ],
+                    settings: {
+                        successUrl: "behave://checkout-success"
+                    }
+                });
+            } catch (err) {
+                console.error("Paddle.js Initialization Error:", err);
+                loadingText.innerHTML = `<span style="color: var(--secondary)">Initialization failed.</span> Please check your Client Side Token and verify your checkout settings domain.`;
+            }
+        }
+
+        // Handle Setup Form Submit
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const token = clientTokenInput.value.trim();
+            const price = priceIdInput.value.trim();
+
+            if (token && price) {
+                localStorage.setItem('paddle_sandbox_token', token);
+                localStorage.setItem('paddle_sandbox_price_id', price);
+
+                // Reload page with parameters
+                window.location.search = `?price_id=${encodeURIComponent(price)}&client_token=${encodeURIComponent(token)}`;
+            }
+        }
+    </script>
+</body>
+</html>
