@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Support — Behave</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .contact-container {
+            max-width: 600px;
+            width: 100%;
+            margin: 60px auto;
+            padding: 0 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .contact-card {
+            background: rgba(26, 26, 46, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .contact-card:hover {
+            border-color: rgba(108, 99, 255, 0.3);
+            box-shadow: 0 20px 40px rgba(108, 99, 255, 0.1);
+        }
+        .icon-header {
+            font-size: 48px;
+            margin-bottom: 20px;
+            display: inline-block;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .contact-title {
+            font-family: var(--font-outfit);
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+        .contact-subtitle {
+            color: var(--text-gray);
+            font-size: 15px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-white);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .form-input, .form-textarea {
+            width: 100%;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(13, 13, 26, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-white);
+            font-family: var(--font-inter);
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .form-textarea {
+            height: 120px;
+            resize: none;
+        }
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border: none;
+            border-radius: 12px;
+            color: var(--text-white);
+            font-family: var(--font-outfit);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 99, 255, 0.6);
+            background: linear-gradient(135deg, #7c74ff, var(--primary));
+        }
+        .status-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden {
+            display: none !important;
+        }
+        .success-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .success-box p {
+            color: var(--text-gray);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .direct-mail {
+            font-size: 14px;
+            color: var(--text-gray);
+            margin-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 20px;
+        }
+        .direct-mail a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .direct-mail a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <a href="index.html" class="logo"><span>Behave</span></a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="contact-container">
+        
+        <!-- Form State Card -->
+        <div id="form-card" class="contact-card">
+            <span class="icon-header">✉️</span>
+            <h2 class="contact-title">Contact Support</h2>
+            <p class="contact-subtitle">Have questions or need assistance? Send us a message and we'll reply as soon as possible.</p>
+
+            <form id="contact-form" onsubmit="handleContactSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label" for="user_name">Full Name</label>
+                    <input type="text" id="user_name" class="form-input" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user_email">Email Address</label>
+                    <input type="email" id="user_email" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user_subject">Subject</label>
+                    <input type="text" id="user_subject" class="form-input" placeholder="How can we help?" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="user_message">Message</label>
+                    <textarea id="user_message" class="form-textarea" placeholder="Tell us more about your inquiry..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Send Message</button>
+            </form>
+
+            <p class="direct-mail">
+                Prefer direct email? Reach out at <a href="mailto:nakshatrapaul4@gmail.com">nakshatrapaul4@gmail.com</a>
+            </p>
+        </div>
+
+        <!-- Loading State Card -->
+        <div id="loading-card" class="contact-card hidden">
+            <span class="icon-header">⏳</span>
+            <h2 class="contact-title">Sending Message</h2>
+            <p class="contact-subtitle">Connecting to mail client...</p>
+            <div class="status-spinner"></div>
+        </div>
+
+        <!-- Success State Card -->
+        <div id="success-card" class="contact-card hidden">
+            <span class="icon-header">✅</span>
+            <h2 class="contact-title">Message Drafted</h2>
+            
+            <div class="success-box">
+                <p>We've launched your local email client with a pre-filled draft. Please review and hit send in your email app.</p>
+                <p>If the email app did not open automatically, you can send your message directly to:</p>
+                <p style="font-size: 18px; font-weight: 700; color: var(--text-white);">nakshatrapaul4@gmail.com</p>
+                
+                <a href="index.html" class="btn-submit" style="display: inline-block; text-decoration: none; max-width: 200px;">Back to Home</a>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div>
+            <p>&copy; 2026 Behave App. Designed by naks.</p>
+            <p style="font-size: 12px; margin-top: 4px;">Free tier up to 5 notes. Upgrade to Premium for unlimited cards.</p>
+        </div>
+        <div style="display: flex; gap: 20px;">
+            <a href="contact.html" style="color: var(--text-gray); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#F0F0F0'" onmouseout="this.style.color='var(--text-gray)'">Contact</a>
+            <a href="refund.html" style="color: var(--text-gray); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#F0F0F0'" onmouseout="this.style.color='var(--text-gray)'">Refund Policy</a>
+            <a href="terms.html" style="color: var(--text-gray); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#F0F0F0'" onmouseout="this.style.color='var(--text-gray)'">Terms</a>
+            <a href="privacy.html" style="color: var(--text-gray); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='#F0F0F0'" onmouseout="this.style.color='var(--text-gray)'">Privacy</a>
+        </div>
+    </footer>
+
+    <script>
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('user_name').value.trim();
+            const email = document.getElementById('user_email').value.trim();
+            const subject = document.getElementById('user_subject').value.trim();
+            const message = document.getElementById('user_message').value.trim();
+
+            const formCard = document.getElementById('form-card');
+            const loadingCard = document.getElementById('loading-card');
+            const successCard = document.getElementById('success-card');
+
+            // Switch to loading view
+            formCard.classList.add('hidden');
+            loadingCard.classList.remove('hidden');
+
+            // Construct mailto link parameters
+            const mailtoSubject = encodeURIComponent(`Behave Support: ${subject}`);
+            const mailtoBody = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+            const mailtoLink = `mailto:nakshatrapaul4@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
+
+            setTimeout(() => {
+                // Open mailto link
+                window.location.href = mailtoLink;
+
+                // Switch to success view
+                loadingCard.classList.add('hidden');
+                successCard.classList.remove('hidden');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
