@@ -19,7 +19,8 @@ data class AuthUiState(
     val password: String = "",
     val name: String = "",
     val isLoginMode: Boolean = true,
-    val isCheckingAuth: Boolean = true
+    val isCheckingAuth: Boolean = true,
+    val acceptedTerms: Boolean = false
 )
 
 @HiltViewModel
@@ -57,15 +58,24 @@ class AuthViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(name = name, error = null)
     }
 
+    fun onAcceptedTermsChanged(accepted: Boolean) {
+        _uiState.value = _uiState.value.copy(acceptedTerms = accepted, error = null)
+    }
+
     fun toggleMode() {
         _uiState.value = _uiState.value.copy(
             isLoginMode = !_uiState.value.isLoginMode,
-            error = null
+            error = null,
+            acceptedTerms = false
         )
     }
 
     fun submit() {
         val state = _uiState.value
+        if (!state.isLoginMode && !state.acceptedTerms) {
+            _uiState.value = state.copy(error = "You must accept the Terms of Service and Privacy Policy")
+            return
+        }
         if (state.email.isBlank() || state.password.isBlank()) {
             _uiState.value = state.copy(error = "Please fill in all fields")
             return

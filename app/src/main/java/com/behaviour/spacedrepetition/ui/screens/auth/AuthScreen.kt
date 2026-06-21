@@ -30,6 +30,11 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.SpanStyle
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.behaviour.spacedrepetition.ui.theme.*
@@ -257,6 +262,62 @@ fun AuthScreen(
                     ),
                     singleLine = true
                 )
+
+                // Terms & Privacy Checkbox (register only)
+                AnimatedVisibility(
+                    visible = !uiState.isLoginMode,
+                    enter = fadeIn(tween(300)) + expandVertically(tween(300)),
+                    exit = fadeOut(tween(200)) + shrinkVertically(tween(200))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = uiState.acceptedTerms,
+                            onCheckedChange = viewModel::onAcceptedTermsChanged,
+                            colors = CheckboxDefaults.colors(
+                                checkedColor = PrimaryDark,
+                                uncheckedColor = TextGray.copy(alpha = 0.5f),
+                                checkmarkColor = TextWhite
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        
+                        val uriHandler = LocalUriHandler.current
+                        val annotatedText = buildAnnotatedString {
+                            append("I accept the ")
+                            pushStringAnnotation(tag = "TERMS", annotation = "https://nakshatrapaul.github.io/behaviour/terms.html")
+                            withStyle(style = SpanStyle(color = PrimaryVariant, fontWeight = FontWeight.Bold)) {
+                                append("Terms of Service")
+                            }
+                            pop()
+                            append(" and ")
+                            pushStringAnnotation(tag = "PRIVACY", annotation = "https://nakshatrapaul.github.io/behaviour/privacy.html")
+                            withStyle(style = SpanStyle(color = PrimaryVariant, fontWeight = FontWeight.Bold)) {
+                                append("Privacy Policy")
+                            }
+                            pop()
+                        }
+
+                        ClickableText(
+                            text = annotatedText,
+                            style = MaterialTheme.typography.bodyMedium.copy(color = TextGray),
+                            onClick = { offset ->
+                                annotatedText.getStringAnnotations(tag = "TERMS", start = offset, end = offset)
+                                    .firstOrNull()?.let { annotation ->
+                                        uriHandler.openUri(annotation.item)
+                                    }
+                                annotatedText.getStringAnnotations(tag = "PRIVACY", start = offset, end = offset)
+                                    .firstOrNull()?.let { annotation ->
+                                        uriHandler.openUri(annotation.item)
+                                    }
+                            }
+                        )
+                    }
+                }
 
                 // Error message
                 AnimatedVisibility(visible = uiState.error != null) {
